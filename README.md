@@ -6,9 +6,11 @@ http://nginx.org/en/docs/http/ngx_http_dav_module.html
 
 https://github.com/arut/nginx-dav-ext-module
 
+https://github.com/openresty/headers-more-nginx-module
+
 ## Features
 
-源码编译 nginx + http_dav_module + nginx-dav-ext-module 安装，镜像体积小
+源码编译 nginx + http_dav_module + nginx-dav-ext-module + headers-more-nginx-module安装，镜像体积小
 
 支持 `-e USERNAME xxx -e PASSWORD xxx` 设置单用户登录
 
@@ -18,46 +20,53 @@ https://github.com/arut/nginx-dav-ext-module
 
 ## Github
 
-https://github.com/duxlong/webdav
+https://github.com/hhs66317/webdav
 
 ## Docker hub
 
-https://hub.docker.com/r/duxlong/webdav
+https://hub.docker.com/r/hhs66317/webdav
 
 ## Usage
 
 docker pull
 ```
-docker pull duxlong/webdav
+docker pull hhs66317/webdav
 ```
 
-docker run 根据自己情况修改-单用户
+根据自己情况修改-单用户
 ```
-docker run -d \
-    -v /srv/dev-disk-by-label-2T/download:/data/download \
-    -v /srv/dev-disk-by-label-3T/photo:/data/photo \
-    -v /srv/dev-disk-by-label-3T/video:/data/video \
-    -v /srv/dev-disk-by-label-3T/zoo:/data/zoo \
-    -e USERNAME=xxx \
-    -e PASSWORD=xxx \
-    -p 8001:80 \
-    --restart=unless-stopped \
-    --name=webdav \
-    duxlong/webdav
+version: "3"
+services:
+  webdav:
+    image: hhs66317/webdav
+    container_name: webdav
+    hostname: webdav
+    environment:
+      USERNAME: matthew
+      PASSWORD: EMLsRqL8iNbgg7iaqqQ4EXfNebUzZric
+    volumes:
+      - /share/homes/admin/.Qsync/webdav:/data
+      - /share/Public/webdav/conf/nginx.conf:/opt/nginx/conf/nginx.conf:ro
+    restart: unless-stopped
+    ports:
+     - 80:80
 ```
 
-docker run 根据自己情况修改-多用户
+根据自己情况修改-多用户
 ```
-docker run -d \
-    -v /srv/dev-disk-by-label-2T/download:/data/download \
-    -v /srv/dev-disk-by-label-3T/photo:/data/photo \
-    -v /srv/dev-disk-by-label-3T/video:/data/video \
-    -v /srv/dev-disk-by-label-3T/zoo:/data/zoo \
-    -v /docker/webdav/htpasswd:/opt/nginx/conf/htpasswd:ro \
-    -p 8001:80 \
-    --restart=unless-stopped \
-    --name=webdav \
-    duxlong/webdav
+version: "3"
+services:
+  webdav:
+    image: hhs66317/webdav
+    container_name: webdav
+    hostname: webdav
+    volumes:
+      - /share/homes/admin/.Qsync/webdav:/data
+      - /share/Public/webdav/conf/htpasswd:/opt/nginx/conf/htpasswd:ro
+      - /share/Public/webdav/conf/nginx.conf:/opt/nginx/conf/nginx.conf:ro
+    restart: unless-stopped
+    ports:
+     - 80:80
 ```
 
 - 支持多用户；运行容器前，需要在线网站生成并配置好 `htpasswd` 文件（默认 Md5 算法加密）
@@ -66,23 +75,7 @@ docker run -d \
 
 - 把用户信息挂载在 `/opt/nginx/conf/htpasswd` 目录下
 
-docker-compose 根据自己情况修改-多用户
-```
-version: "2"
-services:
-  webdav:
-    container_name: webdav
-    image: duxlong/webdav
-    network_mode: bridge
-    restart: unless-stopped
-    volumes:
-      # 挂载共享文件夹
-      - /srv/dev-disk-by-label-2T/download:/data/download
-      - /srv/dev-disk-by-label-3T/photo:/data/photo
-      - /srv/dev-disk-by-label-3T/video:/data/video
-      - /srv/dev-disk-by-label-3T/zoo:/data/zoo
-      # 挂载用户名和密码
-      - /docker/webdav/htpasswd:/opt/nginx/conf/htpasswd:ro
-    ports:
-      - 8001:80
-```
+- 把nginx.conf挂载再 `/opt/nginx/conf/nginx.conf` 目录下，方便修改
+
+备注：为了解决一些 webdav 使用中的一些问题，根据 https://www.github.com/duxlong/webdav 修改而来
+
