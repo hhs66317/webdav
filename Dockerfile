@@ -7,7 +7,7 @@ COPY nginx.conf /opt/nginx/conf/nginx.conf
 COPY entrypoint.sh /
 
 RUN apk update && \
-    apk add --no-cache pcre libxml2 libxslt && \
+    apk add --no-cache pcre curl libxml2 libxslt && \
     apk add --no-cache apache2-utils && \
     apk add --no-cache gcc make libc-dev pcre-dev zlib-dev libxml2-dev libxslt-dev && \
     cd /tmp && \
@@ -15,8 +15,14 @@ RUN apk update && \
     unzip nginx.zip && \
     wget https://github.com/arut/nginx-dav-ext-module/archive/master.zip -O dav-ext-module.zip && \
     unzip dav-ext-module.zip && \
+    wget https://github.com/openresty/headers-more-nginx-module/archive/refs/heads/master.zip -O headers-more-nginx-module.zip && \
+    unzip headers-more-nginx-module.zip && \
     cd nginx-master && \
-    ./auto/configure --prefix=/opt/nginx --with-http_dav_module --add-module=/tmp/nginx-dav-ext-module-master && \
+    ./auto/configure \
+      --prefix=/opt/nginx \
+      --with-http_dav_module \
+      --add-module=/tmp/nginx-dav-ext-module-master  \
+      --add-module=/tmp/headers-more-nginx-module-master && \
     make && make install && \
     cd /root && \
     chmod +x /entrypoint.sh && \
@@ -48,7 +54,10 @@ CMD /entrypoint.sh && /opt/nginx/sbin/nginx -g "daemon off;"
 # wget https://github.com/arut/nginx-dav-ext-module/archive/master.zip -O dav-ext-module.zip
 # 下载 nginx-dav-ext-module 最新源码
 
-# ./auto/configure --prefix=/opt/nginx --with-http_dav_module --add-module=/tmp/nginx-dav-ext-module-master
+# wget https://github.com/openresty/headers-more-nginx-module/archive/refs/heads/master.zip -O headers-more-nginx-module.zip
+# 下载 headers-more-nginx-module 最新源码
+
+# ./auto/configure --prefix=/opt/nginx --with-http_dav_module --add-module=/tmp/nginx-dav-ext-module-master --add-module=/tmp/headers-more-nginx-module-master
 # 编译安装到 /opt/nginx ，并增加 web_dav 模块，网上教程有误
 
 # apk del gcc make libc-dev pcre-dev zlib-dev libxml2-dev libxslt-dev
