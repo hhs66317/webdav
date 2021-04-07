@@ -6,6 +6,8 @@ alpine 通过 apk 安装 nginx nginx-mod-http-dav-ext nginx-mod-http-fancyindex 
 
 支持 `-e USERNAME xxx -e PASSWORD xxx` 设置单用户登录
 
+支持 `-e TZ Asia/Shanghai` 设置时区，默认为 `Asia/Shanghai`
+
 支持 `-v /your/htpasswd:/etc/nginx/htpasswd` 设置多用户登录
 
 支持 https ，默认是http，配好证书的话，可以直接启用https
@@ -38,6 +40,7 @@ services:
     environment:
       USERNAME: matthew
       PASSWORD: EMLsRqL8iNbgg7iaqqQ4EXfNebUzZric
+      TZ: "Asia/Shanghai"
     volumes:
       - /share/homes/admin/.Qsync/webdav:/data
       - /share/Public/webdav/conf/nginx.conf:/etc/nginx/nginx.conf
@@ -55,6 +58,8 @@ services:
     image: hhs66317/webdav
     container_name: webdav
     hostname: webdav
+    environment:
+      TZ: "Asia/Shanghai"
     volumes:
       - /share/homes/admin/.Qsync/webdav:/data
       - /share/Public/webdav/conf/htpasswd:/etc/nginx/htpasswd
