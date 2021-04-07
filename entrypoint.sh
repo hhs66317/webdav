@@ -1,12 +1,12 @@
 #!/bin/sh
 
 # 优先判断是否是 -v 多用户模式
-if [ -e /opt/nginx/conf/htpasswd ]; then exit 0; fi
+if [ -e /etc/nginx/htpasswd ]; then exit 0; fi
 
 # 再判断是否是 -e 单用户模式
 if [ -n "$USERNAME" ]
 then
-  htpasswd -bc /opt/nginx/conf/htpasswd $USERNAME $PASSWORD
+  htpasswd -bc /etc/nginx/htpasswd $USERNAME $PASSWORD
   echo "成功添加单用户！"
   exit 0
 fi

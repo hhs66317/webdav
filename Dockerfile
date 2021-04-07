@@ -2,68 +2,20 @@ FROM alpine
 
 ENV USERNAME="" PASSWORD=""
 
-COPY nginx.conf /opt/nginx/conf/nginx.conf
-
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /
 
-RUN apk update && \
-    apk add --no-cache pcre curl libxml2 libxslt && \
-    apk add --no-cache apache2-utils && \
-    apk add --no-cache gcc make libc-dev pcre-dev zlib-dev libxml2-dev libxslt-dev && \
-    cd /tmp && \
-    wget https://github.com/nginx/nginx/archive/master.zip -O nginx.zip && \
-    unzip nginx.zip && \
-    wget https://github.com/arut/nginx-dav-ext-module/archive/master.zip -O dav-ext-module.zip && \
-    unzip dav-ext-module.zip && \
-    wget https://github.com/openresty/headers-more-nginx-module/archive/refs/heads/master.zip -O headers-more-nginx-module.zip && \
-    unzip headers-more-nginx-module.zip && \
-    cd nginx-master && \
-    ./auto/configure \
-      --prefix=/opt/nginx \
-      --with-http_dav_module \
-      --add-module=/tmp/nginx-dav-ext-module-master  \
-      --add-module=/tmp/headers-more-nginx-module-master && \
-    make && make install && \
-    cd /root && \
-    chmod +x /entrypoint.sh && \
-    apk del gcc make libc-dev pcre-dev zlib-dev libxml2-dev libxslt-dev && \
-    rm -rf /var/cache/apk/* && \
-    rm -rf /tmp/*
+RUN apk update \
+    && apk add --no-cache nginx nginx-mod-http-dav-ext nginx-mod-http-fancyindex nginx-mod-http-headers-more openssl curl \
+    && mkdir /run/nginx \
+    && mkdir /data \
+    && chmod +x /entrypoint.sh \
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /tmp/*
 
 VOLUME /data
 
 EXPOSE 80
+EXPOSE 443
 
-CMD /entrypoint.sh && /opt/nginx/sbin/nginx -g "daemon off;"
-
-# COPY nginx.conf /opt/nginx/conf/nginx.conf
-# docker hub 可以直接复制 github 中的代码
-
-# apk add --no-cache apache2-utils
-# 支持 htpasswd 命令，单用户模式创建密码用
-
-# apk add --no-cache pcre libxml2 libxslt
-# 安装 nginx 运行所必须的库
-
-# apk add --no-cache gcc make libc-dev pcre-dev zlib-dev libxml2-dev libxslt-dev
-# 安装编译工具
-
-# wget https://github.com/nginx/nginx/archive/master.zip -O nginx.zip
-# 下载 nginx 最新源码
-
-# wget https://github.com/arut/nginx-dav-ext-module/archive/master.zip -O dav-ext-module.zip
-# 下载 nginx-dav-ext-module 最新源码
-
-# wget https://github.com/openresty/headers-more-nginx-module/archive/refs/heads/master.zip -O headers-more-nginx-module.zip
-# 下载 headers-more-nginx-module 最新源码
-
-# ./auto/configure --prefix=/opt/nginx --with-http_dav_module --add-module=/tmp/nginx-dav-ext-module-master --add-module=/tmp/headers-more-nginx-module-master
-# 编译安装到 /opt/nginx ，并增加 web_dav 模块，网上教程有误
-
-# apk del gcc make libc-dev pcre-dev zlib-dev libxml2-dev libxslt-dev
-# 卸载编译工具，缩减镜像体积
-
-# CMD /entrypoint.sh && /opt/nginx/sbin/nginx -g "daemon off;"
-# 执行 entrypoint.sh 判断是单用户模式还是多用户模式
-# 源码编译安装的 nginx 未加入环境变量，所以用绝对路径运行 nginx
-# nginx 关闭后台运行，才能在 docker 中运行
+CMD /entrypoint.sh && /usr/sbin/nginx -g "daemon off;"
