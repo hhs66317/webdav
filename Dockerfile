@@ -10,8 +10,6 @@ RUN apk update \
     && mkdir /run/nginx \
     && mkdir /data \
     && chmod +x /entrypoint.sh \
-    && cp /usr/share/zoneinfo/$TZ /etc/localtime \
-    && apk del tzdata \
     && rm -rf /var/cache/apk/* \
     && rm -rf /tmp/*
 
