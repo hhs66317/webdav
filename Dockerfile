@@ -11,7 +11,6 @@ RUN apk update \
     && mkdir /data \
     && chmod +x /entrypoint.sh \
     && cp /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone \
     && apk del tzdata \
     && rm -rf /var/cache/apk/* \
     && rm -rf /tmp/*
