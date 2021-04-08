@@ -1,5 +1,9 @@
 # webdav
 
+## Important
+
+基于 Nginx 提供的 webdav 功能是不完整的，不过大多数 webdav 客户端都是可以正常使用的，比如移动端App、Windows端的winscp等都是没问题的，但是直接在windows上通过驱动器映射的方法只能读取，而不能正常写入，主要是缺少了对 `PROPPATCH` 的支持，windows 的 webdavclient 会调用这个 method 来修改文件属性。
+
 ## Features
 
 alpine 通过 apk 安装 nginx nginx-mod-http-dav-ext nginx-mod-http-fancyindex nginx-mod-http-headers-more openssl curl 后制作
